@@ -119,7 +119,7 @@ export default function InitialBalanceModal({
                 id="amount"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 placeholder="Masukkan saldo awal"
                 required
                 step="0.01"
@@ -137,7 +137,7 @@ export default function InitialBalanceModal({
                 id="note"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                 placeholder="Contoh: Saldo dari tabungan bank, kas tunai, dll"
                 rows={3}
               />
