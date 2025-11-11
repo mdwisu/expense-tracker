@@ -299,15 +299,13 @@ export default function Home() {
               <span className="text-xs sm:text-sm">PDF</span>
             </button>
 
-            {/* Add Income - Spanning 2 columns on mobile */}
-            <div className="col-span-2 sm:col-span-1">
-              <AddIncomeForm
-                onSuccess={() => {
-                  success('Pemasukan berhasil ditambahkan')
-                  fetchData()
-                }}
-              />
-            </div>
+            {/* Add Income */}
+            <AddIncomeForm
+              onSuccess={() => {
+                success('Pemasukan berhasil ditambahkan')
+                fetchData()
+              }}
+            />
           </div>
         </div>
 
