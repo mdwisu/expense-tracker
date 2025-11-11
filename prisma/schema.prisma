@@ -17,6 +17,7 @@ model Category {
   color     String
   createdAt DateTime  @default(now())
   expenses  Expense[]
+  budgets   Budget[]
 }
 
 model Expense {
@@ -38,4 +39,17 @@ model Income {
   date      DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  amount     Float
+  month      Int
+  year       Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([categoryId, month, year])
 }

@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import AddExpenseForm from './components/AddExpenseForm'
 import AddIncomeForm from './components/AddIncomeForm'
+import ExpenseChart from './components/ExpenseChart'
+import BudgetModal from './components/BudgetModal'
+import { exportToCSV, printToPDF } from '@/lib/export'
 
 interface Category {
   id: string
@@ -27,6 +30,13 @@ interface Income {
   date: string
 }
 
+interface Budget {
+  id: string
+  categoryId: string
+  amount: number
+  category: Category
+}
+
 interface Stats {
   totalIncome: number
   totalExpenses: number
@@ -44,6 +54,7 @@ export default function Home() {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [incomes, setIncomes] = useState<Income[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [budgets, setBudgets] = useState<Budget[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1)
@@ -52,28 +63,32 @@ export default function Home() {
   const [isEditExpenseOpen, setIsEditExpenseOpen] = useState(false)
   const [editingIncome, setEditingIncome] = useState<Income | null>(null)
   const [isEditIncomeOpen, setIsEditIncomeOpen] = useState(false)
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false)
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [expensesRes, incomesRes, categoriesRes, statsRes] = await Promise.all([
+      const [expensesRes, incomesRes, categoriesRes, statsRes, budgetsRes] = await Promise.all([
         fetch(`/api/expenses?month=${selectedMonth}&year=${selectedYear}`),
         fetch(`/api/income?month=${selectedMonth}&year=${selectedYear}`),
         fetch('/api/categories'),
         fetch(`/api/stats?month=${selectedMonth}&year=${selectedYear}`),
+        fetch(`/api/budgets?month=${selectedMonth}&year=${selectedYear}`),
       ])
 
-      const [expensesData, incomesData, categoriesData, statsData] = await Promise.all([
+      const [expensesData, incomesData, categoriesData, statsData, budgetsData] = await Promise.all([
         expensesRes.json(),
         incomesRes.json(),
         categoriesRes.json(),
         statsRes.json(),
+        budgetsRes.json(),
       ])
 
       setExpenses(expensesData)
       setIncomes(incomesData)
       setCategories(categoriesData)
       setStats(statsData)
+      setBudgets(budgetsData)
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -168,7 +183,7 @@ export default function Home() {
         </div>
 
         {/* Month Selector */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex items-center justify-between">
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex gap-4">
             <select
               value={selectedMonth}
@@ -193,7 +208,45 @@ export default function Home() {
               ))}
             </select>
           </div>
-          <AddIncomeForm onSuccess={fetchData} />
+
+          <div className="flex gap-2">
+            {/* Budget Button */}
+            <button
+              onClick={() => setIsBudgetModalOpen(true)}
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors flex items-center gap-2"
+              title="Atur Budget"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              <span className="hidden sm:inline">Budget</span>
+            </button>
+
+            {/* Export Buttons */}
+            <button
+              onClick={() => exportToCSV(expenses, incomes, selectedMonth, selectedYear)}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center gap-2"
+              title="Export ke CSV"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="hidden sm:inline">CSV</span>
+            </button>
+
+            <button
+              onClick={() => stats && printToPDF(expenses, incomes, stats, selectedMonth, selectedYear)}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+              title="Print PDF"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              <span className="hidden sm:inline">PDF</span>
+            </button>
+
+            <AddIncomeForm onSuccess={fetchData} />
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -237,38 +290,85 @@ export default function Home() {
           </div>
         )}
 
+        {/* Chart Visualization */}
+        {stats && stats.categoryStats.length > 0 && (
+          <ExpenseChart categoryStats={stats.categoryStats} />
+        )}
+
         {/* Category Stats */}
         {stats && stats.categoryStats.length > 0 && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Pengeluaran per Kategori</h2>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {stats.categoryStats.map((cat) => {
                 const percentage = stats.totalExpenses > 0
                   ? (cat.total / stats.totalExpenses) * 100
                   : 0
 
+                // Find budget for this category
+                const categoryBudget = budgets.find(b => b.category.name === cat.category)
+                const budgetAmount = categoryBudget?.amount || 0
+                const budgetPercentage = budgetAmount > 0 ? (cat.total / budgetAmount) * 100 : 0
+                const isOverBudget = budgetAmount > 0 && cat.total > budgetAmount
+
                 return (
-                  <div key={cat.category} className="space-y-1">
+                  <div key={cat.category} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-700">
                         {cat.icon} {cat.category} ({cat.count}x)
                       </span>
-                      <span className="font-semibold text-gray-800">
-                        {formatCurrency(cat.total)}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-800">
+                          {formatCurrency(cat.total)}
+                        </span>
+                        {budgetAmount > 0 && (
+                          <span className="text-xs text-gray-500">
+                            / {formatCurrency(budgetAmount)}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="h-2 rounded-full transition-all"
-                        style={{
-                          width: `${percentage}%`,
-                          backgroundColor: cat.color,
-                        }}
-                      />
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {percentage.toFixed(1)}% dari total pengeluaran
-                    </div>
+
+                    {/* Budget Progress Bar */}
+                    {budgetAmount > 0 ? (
+                      <div className="space-y-1">
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div
+                            className={`h-2.5 rounded-full transition-all ${
+                              isOverBudget ? 'bg-red-500' : ''
+                            }`}
+                            style={{
+                              width: `${Math.min(budgetPercentage, 100)}%`,
+                              backgroundColor: isOverBudget ? undefined : cat.color,
+                            }}
+                          />
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span className={isOverBudget ? 'text-red-600 font-semibold' : 'text-gray-500'}>
+                            {budgetPercentage.toFixed(0)}% dari budget
+                            {isOverBudget && ' - Melebihi budget!'}
+                          </span>
+                          <span className="text-gray-500">
+                            {percentage.toFixed(1)}% dari total
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="h-2 rounded-full transition-all"
+                            style={{
+                              width: `${percentage}%`,
+                              backgroundColor: cat.color,
+                            }}
+                          />
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {percentage.toFixed(1)}% dari total pengeluaran
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )
               })}
@@ -438,6 +538,17 @@ export default function Home() {
           onClose={handleCloseEditIncome}
         />
       )}
+
+      {/* Budget Modal */}
+      <BudgetModal
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+        categories={categories}
+        budgets={budgets}
+        month={selectedMonth}
+        year={selectedYear}
+        onSuccess={fetchData}
+      />
     </div>
   )
 }
