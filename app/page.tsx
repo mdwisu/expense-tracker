@@ -6,6 +6,7 @@ import AddIncomeForm from './components/AddIncomeForm'
 import ExpenseChart from './components/ExpenseChart'
 import BudgetModal from './components/BudgetModal'
 import InitialBalanceModal from './components/InitialBalanceModal'
+import PWAInstallPrompt from './components/PWAInstallPrompt'
 import Toast from './components/Toast'
 import { exportToCSV, printToPDF } from '@/lib/export'
 import { useToast } from '@/lib/useToast'
@@ -674,6 +675,9 @@ export default function Home() {
           onClose={() => removeToast(toast.id)}
         />
       ))}
+
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
     </div>
   )
 }
