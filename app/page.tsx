@@ -5,6 +5,7 @@ import AddExpenseForm from './components/AddExpenseForm'
 import AddIncomeForm from './components/AddIncomeForm'
 import ExpenseChart from './components/ExpenseChart'
 import BudgetModal from './components/BudgetModal'
+import InitialBalanceModal from './components/InitialBalanceModal'
 import Toast from './components/Toast'
 import { exportToCSV, printToPDF } from '@/lib/export'
 import { useToast } from '@/lib/useToast'
@@ -42,7 +43,10 @@ interface Budget {
 interface Stats {
   totalIncome: number
   totalExpenses: number
-  balance: number
+  monthlyBalance: number
+  previousBalance: number
+  cumulativeBalance: number
+  ytdBalance: number
   categoryStats: {
     category: string
     icon: string
@@ -66,6 +70,7 @@ export default function Home() {
   const [editingIncome, setEditingIncome] = useState<Income | null>(null)
   const [isEditIncomeOpen, setIsEditIncomeOpen] = useState(false)
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false)
+  const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false)
 
   const { toasts, removeToast, success, error, info } = useToast()
 
@@ -243,6 +248,18 @@ export default function Home() {
           </div>
 
           <div className="flex gap-2">
+            {/* Initial Balance Button */}
+            <button
+              onClick={() => setIsBalanceModalOpen(true)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
+              title="Atur Saldo Awal"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="hidden sm:inline">Saldo Awal</span>
+            </button>
+
             {/* Budget Button */}
             <button
               onClick={() => setIsBudgetModalOpen(true)}
@@ -289,43 +306,82 @@ export default function Home() {
 
         {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Pemasukan</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {formatCurrency(stats.totalIncome)}
-                  </p>
+          <>
+            {/* Income and Expense Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Pemasukan Bulan Ini</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {formatCurrency(stats.totalIncome)}
+                    </p>
+                  </div>
+                  <div className="text-4xl">💰</div>
                 </div>
-                <div className="text-4xl">💰</div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Pengeluaran Bulan Ini</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      {formatCurrency(stats.totalExpenses)}
+                    </p>
+                  </div>
+                  <div className="text-4xl">💸</div>
+                </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Pengeluaran</p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {formatCurrency(stats.totalExpenses)}
-                  </p>
+            {/* Balance Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between">
+                  <div className="w-full">
+                    <p className="text-sm text-gray-600 mb-1">Saldo Bulan Ini</p>
+                    <p className={`text-2xl font-bold ${stats.monthlyBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                      {formatCurrency(stats.monthlyBalance)}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Selisih pemasukan & pengeluaran
+                    </p>
+                  </div>
+                  <div className="text-4xl">{stats.monthlyBalance >= 0 ? '📊' : '📉'}</div>
                 </div>
-                <div className="text-4xl">💸</div>
               </div>
-            </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Saldo</p>
-                  <p className={`text-2xl font-bold ${stats.balance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                    {formatCurrency(stats.balance)}
-                  </p>
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform">
+                <div className="flex items-center justify-between">
+                  <div className="w-full">
+                    <p className="text-sm text-white/90 mb-1 font-medium">💎 Saldo Kumulatif</p>
+                    <p className={`text-3xl font-bold text-white`}>
+                      {formatCurrency(stats.cumulativeBalance)}
+                    </p>
+                    <p className="text-xs text-white/80 mt-2">
+                      Saldo awal: {formatCurrency(stats.previousBalance)}
+                    </p>
+                  </div>
+                  <div className="text-4xl">{stats.cumulativeBalance >= 0 ? '✅' : '⚠️'}</div>
                 </div>
-                <div className="text-4xl">{stats.balance >= 0 ? '✅' : '⚠️'}</div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between">
+                  <div className="w-full">
+                    <p className="text-sm text-gray-600 mb-1">Saldo Year-to-Date</p>
+                    <p className={`text-2xl font-bold ${stats.ytdBalance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {formatCurrency(stats.ytdBalance)}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Akumulasi tahun {selectedYear}
+                    </p>
+                  </div>
+                  <div className="text-4xl">📅</div>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Chart Visualization */}
@@ -595,6 +651,16 @@ export default function Home() {
         year={selectedYear}
         onSuccess={() => {
           success('Budget berhasil disimpan')
+          fetchData()
+        }}
+      />
+
+      {/* Initial Balance Modal */}
+      <InitialBalanceModal
+        isOpen={isBalanceModalOpen}
+        onClose={() => setIsBalanceModalOpen(false)}
+        onSuccess={() => {
+          success('Saldo awal berhasil disimpan')
           fetchData()
         }}
       />

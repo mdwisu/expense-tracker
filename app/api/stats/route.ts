@@ -65,12 +65,80 @@ export async function GET(request: NextRequest) {
 
     const totalIncome = incomeData._sum.amount || 0
     const totalExpenses = expenseData._sum.amount || 0
-    const balance = totalIncome - totalExpenses
+    const monthlyBalance = totalIncome - totalExpenses
+
+    // Calculate cumulative balance
+    // Get initial balance
+    const initialBalance = await prisma.initialBalance.findFirst({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    // Get all income before this month
+    const allPreviousIncome = await prisma.income.aggregate({
+      where: {
+        date: {
+          lt: startDate,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    })
+
+    // Get all expenses before this month
+    const allPreviousExpenses = await prisma.expense.aggregate({
+      where: {
+        date: {
+          lt: startDate,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    })
+
+    const previousBalance = (initialBalance?.amount || 0) +
+                           (allPreviousIncome._sum.amount || 0) -
+                           (allPreviousExpenses._sum.amount || 0)
+
+    const cumulativeBalance = previousBalance + monthlyBalance
+
+    // Calculate YTD (Year to Date)
+    const ytdStartDate = new Date(currentYear, 0, 1)
+
+    const ytdIncome = await prisma.income.aggregate({
+      where: {
+        date: {
+          gte: ytdStartDate,
+          lte: endDate,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    })
+
+    const ytdExpenses = await prisma.expense.aggregate({
+      where: {
+        date: {
+          gte: ytdStartDate,
+          lte: endDate,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    })
+
+    const ytdBalance = (ytdIncome._sum.amount || 0) - (ytdExpenses._sum.amount || 0)
 
     return NextResponse.json({
       totalIncome,
       totalExpenses,
-      balance,
+      monthlyBalance,
+      previousBalance,
+      cumulativeBalance,
+      ytdBalance,
       categoryStats: categoryStats.sort((a, b) => b.total - a.total),
     })
   } catch (error) {

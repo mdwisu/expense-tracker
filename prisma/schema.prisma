@@ -53,3 +53,12 @@ model Budget {
 
   @@unique([categoryId, month, year])
 }
+
+model InitialBalance {
+  id        String   @id @default(cuid())
+  amount    Float
+  date      DateTime @default(now())
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
