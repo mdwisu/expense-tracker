@@ -4,8 +4,56 @@
 - IP: 43.157.243.243
 - User: ubuntu
 - Domain: expense.mdwisu.com
+- Port: 3001 (aplikasi berjalan di port 3001, Nginx proxy ke port 80/443)
 
-## Langkah-Langkah Deployment
+## 🚀 Quick Start (Otomatis dengan Script)
+
+### First-Time Deployment
+
+1. **Persiapan DNS**: Tambahkan A record di domain provider
+   ```
+   Type: A
+   Name: expense
+   Value: 43.157.243.243
+   TTL: Auto
+   ```
+
+2. **Pastikan SSH key sudah dikonfigurasi** untuk akses ke VPS
+
+3. **Jalankan script first-time deployment**:
+   ```bash
+   chmod +x first-deploy.sh
+   ./first-deploy.sh
+   ```
+
+Script ini akan otomatis:
+- Setup direktori di VPS
+- Clone repository
+- Install dependencies
+- Setup database dan seed data
+- Build aplikasi
+- Start dengan PM2
+- Konfigurasi Nginx
+- Setup SSL certificate (opsional)
+
+### Update Deployment
+
+Setelah first-time deployment, untuk update aplikasi cukup jalankan:
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+Script akan otomatis:
+- Pull latest code dari GitHub
+- Install/update dependencies
+- Run migrations
+- Build aplikasi
+- Restart PM2
+
+---
+
+## 📋 Langkah-Langkah Manual (Jika Tidak Menggunakan Script)
 
 ### 1. Persiapan VPS
 
@@ -73,9 +121,9 @@ npm run build
 
 ### 5. Setup PM2
 
-Start aplikasi dengan PM2:
+Start aplikasi dengan PM2 menggunakan ecosystem config:
 ```bash
-pm2 start npm --name "expense-tracker" -- start
+pm2 start ecosystem.config.js
 pm2 save
 pm2 startup
 ```
@@ -102,7 +150,7 @@ server {
     server_name expense.mdwisu.com;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -114,6 +162,8 @@ server {
     }
 }
 ```
+
+**Note**: Port 3001 digunakan karena port 3000 sudah dipakai oleh aplikasi lain di VPS.
 
 Enable site:
 ```bash
@@ -223,3 +273,49 @@ Setup PM2 monitoring (optional):
 ```bash
 pm2 install pm2-logrotate
 ```
+
+---
+
+## 📁 Files Konfigurasi
+
+Repository ini sudah dilengkapi dengan file-file konfigurasi deployment:
+
+### `ecosystem.config.js`
+PM2 process configuration file. Mendefinisikan:
+- Nama aplikasi: `expense-tracker`
+- Port: 3001
+- Working directory: `/var/www/expense-tracker`
+- Environment variables
+- Log file locations
+- Auto-restart settings
+
+### `first-deploy.sh`
+Script bash untuk first-time deployment ke VPS. Otomatis menjalankan:
+1. Setup direktori
+2. Clone repository
+3. Install dependencies
+4. Setup database
+5. Build aplikasi
+6. Konfigurasi PM2, Nginx, dan SSL
+
+Cara pakai:
+```bash
+chmod +x first-deploy.sh
+./first-deploy.sh
+```
+
+### `deploy.sh`
+Script bash untuk update deployment. Otomatis menjalankan:
+1. Pull latest code
+2. Install/update dependencies
+3. Run database migrations
+4. Build aplikasi
+5. Restart PM2
+
+Cara pakai:
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+**Note**: Script-script ini menggunakan SSH untuk menjalankan command di VPS. Pastikan SSH key sudah dikonfigurasi.
