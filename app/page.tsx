@@ -5,7 +5,9 @@ import AddExpenseForm from './components/AddExpenseForm'
 import AddIncomeForm from './components/AddIncomeForm'
 import ExpenseChart from './components/ExpenseChart'
 import BudgetModal from './components/BudgetModal'
+import Toast from './components/Toast'
 import { exportToCSV, printToPDF } from '@/lib/export'
+import { useToast } from '@/lib/useToast'
 
 interface Category {
   id: string
@@ -64,6 +66,8 @@ export default function Home() {
   const [editingIncome, setEditingIncome] = useState<Income | null>(null)
   const [isEditIncomeOpen, setIsEditIncomeOpen] = useState(false)
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false)
+
+  const { toasts, removeToast, success, error, info } = useToast()
 
   const fetchData = async () => {
     setLoading(true)
@@ -135,10 +139,14 @@ export default function Home() {
       })
 
       if (response.ok) {
+        success('Pengeluaran berhasil dihapus')
         fetchData()
+      } else {
+        error('Gagal menghapus pengeluaran')
       }
-    } catch (error) {
-      console.error('Error deleting expense:', error)
+    } catch (err) {
+      console.error('Error deleting expense:', err)
+      error('Terjadi kesalahan saat menghapus')
     }
   }
 
@@ -161,10 +169,35 @@ export default function Home() {
       })
 
       if (response.ok) {
+        success('Pemasukan berhasil dihapus')
         fetchData()
+      } else {
+        error('Gagal menghapus pemasukan')
       }
-    } catch (error) {
-      console.error('Error deleting income:', error)
+    } catch (err) {
+      console.error('Error deleting income:', err)
+      error('Terjadi kesalahan saat menghapus')
+    }
+  }
+
+  const handleExportCSV = () => {
+    try {
+      exportToCSV(expenses, incomes, selectedMonth, selectedYear)
+      success('Data berhasil diexport ke CSV')
+    } catch (err) {
+      console.error('Error exporting CSV:', err)
+      error('Gagal export ke CSV')
+    }
+  }
+
+  const handlePrintPDF = () => {
+    if (!stats) return
+    try {
+      printToPDF(expenses, incomes, stats, selectedMonth, selectedYear)
+      info('Membuka jendela print...')
+    } catch (err) {
+      console.error('Error printing PDF:', err)
+      error('Gagal membuka print PDF')
     }
   }
 
@@ -224,7 +257,7 @@ export default function Home() {
 
             {/* Export Buttons */}
             <button
-              onClick={() => exportToCSV(expenses, incomes, selectedMonth, selectedYear)}
+              onClick={handleExportCSV}
               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center gap-2"
               title="Export ke CSV"
             >
@@ -235,7 +268,7 @@ export default function Home() {
             </button>
 
             <button
-              onClick={() => stats && printToPDF(expenses, incomes, stats, selectedMonth, selectedYear)}
+              onClick={handlePrintPDF}
               className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
               title="Print PDF"
             >
@@ -245,7 +278,12 @@ export default function Home() {
               <span className="hidden sm:inline">PDF</span>
             </button>
 
-            <AddIncomeForm onSuccess={fetchData} />
+            <AddIncomeForm
+              onSuccess={() => {
+                success('Pemasukan berhasil ditambahkan')
+                fetchData()
+              }}
+            />
           </div>
         </div>
 
@@ -498,13 +536,20 @@ export default function Home() {
       </div>
 
       {/* Add Expense Button */}
-      <AddExpenseForm categories={categories} onSuccess={fetchData} />
+      <AddExpenseForm
+        categories={categories}
+        onSuccess={() => {
+          success('Pengeluaran berhasil ditambahkan')
+          fetchData()
+        }}
+      />
 
       {/* Edit Expense Modal */}
       {editingExpense && (
         <AddExpenseForm
           categories={categories}
           onSuccess={() => {
+            success('Pengeluaran berhasil diupdate')
             fetchData()
             handleCloseEdit()
           }}
@@ -525,6 +570,7 @@ export default function Home() {
       {editingIncome && (
         <AddIncomeForm
           onSuccess={() => {
+            success('Pemasukan berhasil diupdate')
             fetchData()
             handleCloseEditIncome()
           }}
@@ -547,8 +593,21 @@ export default function Home() {
         budgets={budgets}
         month={selectedMonth}
         year={selectedYear}
-        onSuccess={fetchData}
+        onSuccess={() => {
+          success('Budget berhasil disimpan')
+          fetchData()
+        }}
       />
+
+      {/* Toast Notifications */}
+      {toasts.map(toast => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => removeToast(toast.id)}
+        />
+      ))}
     </div>
   )
 }
