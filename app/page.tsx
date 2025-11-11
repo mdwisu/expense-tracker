@@ -20,6 +20,13 @@ interface Expense {
   category: Category
 }
 
+interface Income {
+  id: string
+  title: string
+  amount: number
+  date: string
+}
+
 interface Stats {
   totalIncome: number
   totalExpenses: number
@@ -35,6 +42,7 @@ interface Stats {
 
 export default function Home() {
   const [expenses, setExpenses] = useState<Expense[]>([])
+  const [incomes, setIncomes] = useState<Income[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -42,23 +50,28 @@ export default function Home() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [isEditExpenseOpen, setIsEditExpenseOpen] = useState(false)
+  const [editingIncome, setEditingIncome] = useState<Income | null>(null)
+  const [isEditIncomeOpen, setIsEditIncomeOpen] = useState(false)
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [expensesRes, categoriesRes, statsRes] = await Promise.all([
+      const [expensesRes, incomesRes, categoriesRes, statsRes] = await Promise.all([
         fetch(`/api/expenses?month=${selectedMonth}&year=${selectedYear}`),
+        fetch(`/api/income?month=${selectedMonth}&year=${selectedYear}`),
         fetch('/api/categories'),
         fetch(`/api/stats?month=${selectedMonth}&year=${selectedYear}`),
       ])
 
-      const [expensesData, categoriesData, statsData] = await Promise.all([
+      const [expensesData, incomesData, categoriesData, statsData] = await Promise.all([
         expensesRes.json(),
+        incomesRes.json(),
         categoriesRes.json(),
         statsRes.json(),
       ])
 
       setExpenses(expensesData)
+      setIncomes(incomesData)
       setCategories(categoriesData)
       setStats(statsData)
     } catch (error) {
@@ -111,6 +124,32 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error deleting expense:', error)
+    }
+  }
+
+  const handleEditIncome = (income: Income) => {
+    setEditingIncome(income)
+    setIsEditIncomeOpen(true)
+  }
+
+  const handleCloseEditIncome = () => {
+    setEditingIncome(null)
+    setIsEditIncomeOpen(false)
+  }
+
+  const handleDeleteIncome = async (id: string) => {
+    if (!confirm('Yakin ingin menghapus pemasukan ini?')) return
+
+    try {
+      const response = await fetch(`/api/income?id=${id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        fetchData()
+      }
+    } catch (error) {
+      console.error('Error deleting income:', error)
     }
   }
 
@@ -237,6 +276,63 @@ export default function Home() {
           </div>
         )}
 
+        {/* Income History */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">Riwayat Pemasukan</h2>
+
+          {loading ? (
+            <div className="text-center py-8 text-gray-500">Loading...</div>
+          ) : incomes.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              Belum ada pemasukan bulan ini
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {incomes.map((income) => (
+                <div
+                  key={income.id}
+                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-2xl">
+                      💰
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">{income.title}</h3>
+                      <p className="text-sm text-gray-500">
+                        {formatDate(income.date)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-lg font-bold text-green-600">
+                      +{formatCurrency(income.amount)}
+                    </span>
+                    <button
+                      onClick={() => handleEditIncome(income)}
+                      className="text-gray-400 hover:text-blue-600 transition-colors"
+                      title="Edit"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteIncome(income.id)}
+                      className="text-gray-400 hover:text-red-600 transition-colors"
+                      title="Hapus"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Expenses List */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Riwayat Pengeluaran</h2>
@@ -322,6 +418,24 @@ export default function Home() {
           }}
           isOpen={isEditExpenseOpen}
           onClose={handleCloseEdit}
+        />
+      )}
+
+      {/* Edit Income Modal */}
+      {editingIncome && (
+        <AddIncomeForm
+          onSuccess={() => {
+            fetchData()
+            handleCloseEditIncome()
+          }}
+          income={{
+            id: editingIncome.id,
+            title: editingIncome.title,
+            amount: editingIncome.amount,
+            date: editingIncome.date,
+          }}
+          isOpen={isEditIncomeOpen}
+          onClose={handleCloseEditIncome}
         />
       )}
     </div>
