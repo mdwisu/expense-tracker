@@ -213,95 +213,100 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-4 sm:py-8 px-3 sm:px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Expense Tracker</h1>
-          <p className="text-gray-600">Kelola keuangan Anda dengan mudah</p>
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-1 sm:mb-2">Expense Tracker</h1>
+          <p className="text-sm sm:text-base text-gray-600">Kelola keuangan Anda dengan mudah</p>
         </div>
 
         {/* Month Selector */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex gap-4">
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {months.map((month, index) => (
-                <option key={index} value={index + 1}>
-                  {month}
-                </option>
-              ))}
-            </select>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {[2023, 2024, 2025, 2026].map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            {/* Date Selectors */}
+            <div className="flex gap-2 flex-1">
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                className="flex-1 px-2 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {months.map((month, index) => (
+                  <option key={index} value={index + 1}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                className="w-24 px-2 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {[2023, 2024, 2025, 2026].map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className="flex gap-2">
-            {/* Initial Balance Button */}
-            <button
-              onClick={() => setIsBalanceModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
-              title="Atur Saldo Awal"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="hidden sm:inline">Saldo Awal</span>
-            </button>
+            {/* Action Buttons */}
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {/* Initial Balance Button */}
+              <button
+                onClick={() => setIsBalanceModalOpen(true)}
+                className="flex-shrink-0 px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-sm"
+                title="Atur Saldo Awal"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="hidden sm:inline">Saldo Awal</span>
+                <span className="sm:hidden">Saldo</span>
+              </button>
 
-            {/* Budget Button */}
-            <button
-              onClick={() => setIsBudgetModalOpen(true)}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors flex items-center gap-2"
-              title="Atur Budget"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-              <span className="hidden sm:inline">Budget</span>
-            </button>
+              {/* Budget Button */}
+              <button
+                onClick={() => setIsBudgetModalOpen(true)}
+                className="flex-shrink-0 px-3 sm:px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-sm"
+                title="Atur Budget"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <span>Budget</span>
+              </button>
 
-            {/* Export Buttons */}
-            <button
-              onClick={handleExportCSV}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center gap-2"
-              title="Export ke CSV"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span className="hidden sm:inline">CSV</span>
-            </button>
+              {/* Export Buttons */}
+              <button
+                onClick={handleExportCSV}
+                className="flex-shrink-0 px-3 sm:px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-sm"
+                title="Export ke CSV"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>CSV</span>
+              </button>
 
-            <button
-              onClick={handlePrintPDF}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
-              title="Print PDF"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              <span className="hidden sm:inline">PDF</span>
-            </button>
+              <button
+                onClick={handlePrintPDF}
+                className="flex-shrink-0 px-3 sm:px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-sm"
+                title="Print PDF"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                <span>PDF</span>
+              </button>
 
-            <AddIncomeForm
-              onSuccess={() => {
-                success('Pemasukan berhasil ditambahkan')
-                fetchData()
-              }}
-            />
+              <AddIncomeForm
+                onSuccess={() => {
+                  success('Pemasukan berhasil ditambahkan')
+                  fetchData()
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -309,76 +314,76 @@ export default function Home() {
         {stats && (
           <>
             {/* Income and Expense Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 mb-3 sm:mb-6">
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Pemasukan Bulan Ini</p>
-                    <p className="text-2xl font-bold text-green-600">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Pemasukan Bulan Ini</p>
+                    <p className="text-lg sm:text-2xl font-bold text-green-600">
                       {formatCurrency(stats.totalIncome)}
                     </p>
                   </div>
-                  <div className="text-4xl">💰</div>
+                  <div className="text-2xl sm:text-4xl">💰</div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Pengeluaran Bulan Ini</p>
-                    <p className="text-2xl font-bold text-red-600">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Pengeluaran Bulan Ini</p>
+                    <p className="text-lg sm:text-2xl font-bold text-red-600">
                       {formatCurrency(stats.totalExpenses)}
                     </p>
                   </div>
-                  <div className="text-4xl">💸</div>
+                  <div className="text-2xl sm:text-4xl">💸</div>
                 </div>
               </div>
             </div>
 
             {/* Balance Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6 mb-4 sm:mb-8">
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div className="w-full">
-                    <p className="text-sm text-gray-600 mb-1">Saldo Bulan Ini</p>
-                    <p className={`text-2xl font-bold ${stats.monthlyBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Saldo Bulan Ini</p>
+                    <p className={`text-lg sm:text-2xl font-bold ${stats.monthlyBalance >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                       {formatCurrency(stats.monthlyBalance)}
                     </p>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-gray-500 mt-1 sm:mt-2">
                       Selisih pemasukan & pengeluaran
                     </p>
                   </div>
-                  <div className="text-4xl">{stats.monthlyBalance >= 0 ? '📊' : '📉'}</div>
+                  <div className="text-2xl sm:text-4xl">{stats.monthlyBalance >= 0 ? '📊' : '📉'}</div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform">
+              <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg p-4 sm:p-6 md:transform md:hover:scale-105 transition-transform">
                 <div className="flex items-center justify-between">
                   <div className="w-full">
-                    <p className="text-sm text-white/90 mb-1 font-medium">💎 Saldo Kumulatif</p>
-                    <p className={`text-3xl font-bold text-white`}>
+                    <p className="text-xs sm:text-sm text-white/90 mb-1 font-medium">💎 Saldo Kumulatif</p>
+                    <p className={`text-xl sm:text-3xl font-bold text-white`}>
                       {formatCurrency(stats.cumulativeBalance)}
                     </p>
-                    <p className="text-xs text-white/80 mt-2">
+                    <p className="text-xs text-white/80 mt-1 sm:mt-2">
                       Saldo awal: {formatCurrency(stats.previousBalance)}
                     </p>
                   </div>
-                  <div className="text-4xl">{stats.cumulativeBalance >= 0 ? '✅' : '⚠️'}</div>
+                  <div className="text-2xl sm:text-4xl">{stats.cumulativeBalance >= 0 ? '✅' : '⚠️'}</div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div className="w-full">
-                    <p className="text-sm text-gray-600 mb-1">Saldo Year-to-Date</p>
-                    <p className={`text-2xl font-bold ${stats.ytdBalance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Saldo Year-to-Date</p>
+                    <p className={`text-lg sm:text-2xl font-bold ${stats.ytdBalance >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                       {formatCurrency(stats.ytdBalance)}
                     </p>
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-gray-500 mt-1 sm:mt-2">
                       Akumulasi tahun {selectedYear}
                     </p>
                   </div>
-                  <div className="text-4xl">📅</div>
+                  <div className="text-2xl sm:text-4xl">📅</div>
                 </div>
               </div>
             </div>
@@ -472,52 +477,52 @@ export default function Home() {
         )}
 
         {/* Income History */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Riwayat Pemasukan</h2>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Riwayat Pemasukan</h2>
 
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Loading...</div>
+            <div className="text-center py-8 text-gray-500 text-sm">Loading...</div>
           ) : incomes.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 text-sm">
               Belum ada pemasukan bulan ini
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {incomes.map((income) => (
                 <div
                   key={income.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-2xl">
+                  <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full bg-green-100 flex items-center justify-center text-xl sm:text-2xl">
                       💰
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">{income.title}</h3>
-                      <p className="text-sm text-gray-500">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">{income.title}</h3>
+                      <p className="text-xs sm:text-sm text-gray-500">
                         {formatDate(income.date)}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-lg font-bold text-green-600">
+                  <div className="flex items-center gap-2 sm:gap-4 ml-2">
+                    <span className="text-sm sm:text-lg font-bold text-green-600 whitespace-nowrap">
                       +{formatCurrency(income.amount)}
                     </span>
                     <button
                       onClick={() => handleEditIncome(income)}
-                      className="text-gray-400 hover:text-blue-600 transition-colors"
+                      className="text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0"
                       title="Edit"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
                     <button
                       onClick={() => handleDeleteIncome(income.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors"
+                      className="text-gray-400 hover:text-red-600 transition-colors flex-shrink-0"
                       title="Hapus"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
@@ -529,58 +534,58 @@ export default function Home() {
         </div>
 
         {/* Expenses List */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Riwayat Pengeluaran</h2>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Riwayat Pengeluaran</h2>
 
           {loading ? (
-            <div className="text-center py-8 text-gray-500">Loading...</div>
+            <div className="text-center py-8 text-gray-500 text-sm">Loading...</div>
           ) : expenses.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 text-sm">
               Belum ada pengeluaran bulan ini
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {expenses.map((expense) => (
                 <div
                   key={expense.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
                     <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+                      className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full flex items-center justify-center text-xl sm:text-2xl"
                       style={{ backgroundColor: expense.category.color + '20' }}
                     >
                       {expense.category.icon}
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-800">{expense.title}</h3>
-                      <p className="text-sm text-gray-500">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">{expense.title}</h3>
+                      <p className="text-xs sm:text-sm text-gray-500">
                         {expense.category.name} • {formatDate(expense.date)}
                       </p>
                       {expense.description && (
-                        <p className="text-sm text-gray-600 mt-1">{expense.description}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{expense.description}</p>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-lg font-bold text-red-600">
+                  <div className="flex items-center gap-2 sm:gap-4 ml-2">
+                    <span className="text-sm sm:text-lg font-bold text-red-600 whitespace-nowrap">
                       -{formatCurrency(expense.amount)}
                     </span>
                     <button
                       onClick={() => handleEdit(expense)}
-                      className="text-gray-400 hover:text-blue-600 transition-colors"
+                      className="text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0"
                       title="Edit"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
                     <button
                       onClick={() => handleDelete(expense.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors"
+                      className="text-gray-400 hover:text-red-600 transition-colors flex-shrink-0"
                       title="Hapus"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
