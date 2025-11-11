@@ -478,8 +478,8 @@ export default function Home() {
         )}
 
         {/* Income History */}
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-4">Riwayat Pemasukan</h2>
+        <div className="bg-white rounded-lg shadow-md p-5 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-5">Riwayat Pemasukan</h2>
 
           {loading ? (
             <div className="text-center py-8 text-gray-500 text-sm">Loading...</div>
@@ -488,31 +488,31 @@ export default function Home() {
               Belum ada pemasukan bulan ini
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {incomes.map((income) => (
                 <div
                   key={income.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-3"
+                  className="flex items-start sm:items-center justify-between p-4 sm:p-5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors gap-4"
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-12 h-12 flex-shrink-0 rounded-full bg-green-100 flex items-center justify-center text-2xl">
+                  <div className="flex items-start sm:items-center gap-4 flex-1 min-w-0">
+                    <div className="w-14 h-14 flex-shrink-0 rounded-full bg-green-100 flex items-center justify-center text-2xl">
                       💰
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-800 text-base mb-1 truncate">{income.title}</h3>
+                      <h3 className="font-semibold text-gray-800 text-base sm:text-lg mb-1.5 truncate">{income.title}</h3>
                       <p className="text-sm text-gray-500">
                         {formatDate(income.date)}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <span className="text-base sm:text-lg font-bold text-green-600 whitespace-nowrap">
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                    <span className="text-lg font-bold text-green-600 whitespace-nowrap">
                       +{formatCurrency(income.amount)}
                     </span>
-                    <div className="flex gap-1">
+                    <div className="flex gap-2">
                       <button
                         onClick={() => handleEditIncome(income)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors flex-shrink-0"
+                        className="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
                         title="Edit"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -521,7 +521,7 @@ export default function Home() {
                       </button>
                       <button
                         onClick={() => handleDeleteIncome(income.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
                         title="Hapus"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -537,8 +537,8 @@ export default function Home() {
         </div>
 
         {/* Expenses List */}
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-4">Riwayat Pengeluaran</h2>
+        <div className="bg-white rounded-lg shadow-md p-5 sm:p-6">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-5">Riwayat Pengeluaran</h2>
 
           {loading ? (
             <div className="text-center py-8 text-gray-500 text-sm">Loading...</div>
@@ -547,37 +547,37 @@ export default function Home() {
               Belum ada pengeluaran bulan ini
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {expenses.map((expense) => (
                 <div
                   key={expense.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-3"
+                  className="flex items-start sm:items-center justify-between p-4 sm:p-5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors gap-4"
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex items-start sm:items-center gap-4 flex-1 min-w-0">
                     <div
-                      className="w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center text-2xl"
+                      className="w-14 h-14 flex-shrink-0 rounded-full flex items-center justify-center text-2xl"
                       style={{ backgroundColor: expense.category.color + '20' }}
                     >
                       {expense.category.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-800 text-base mb-1 truncate">{expense.title}</h3>
-                      <p className="text-sm text-gray-500">
+                      <h3 className="font-semibold text-gray-800 text-base sm:text-lg mb-1.5 truncate">{expense.title}</h3>
+                      <p className="text-sm text-gray-500 mb-1">
                         {expense.category.name} • {formatDate(expense.date)}
                       </p>
                       {expense.description && (
-                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{expense.description}</p>
+                        <p className="text-sm text-gray-600 line-clamp-2">{expense.description}</p>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <span className="text-base sm:text-lg font-bold text-red-600 whitespace-nowrap">
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                    <span className="text-lg font-bold text-red-600 whitespace-nowrap">
                       -{formatCurrency(expense.amount)}
                     </span>
-                    <div className="flex gap-1">
+                    <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(expense)}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors flex-shrink-0"
+                        className="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
                         title="Edit"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -586,7 +586,7 @@ export default function Home() {
                       </button>
                       <button
                         onClick={() => handleDelete(expense.id)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
                         title="Hapus"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
