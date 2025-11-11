@@ -223,83 +223,84 @@ export default function Home() {
 
         {/* Month Selector */}
         <div className="bg-white rounded-lg shadow-md p-3 sm:p-4 mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            {/* Date Selectors */}
-            <div className="flex gap-2 flex-1">
-              <select
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                className="flex-1 px-2 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {months.map((month, index) => (
-                  <option key={index} value={index + 1}>
-                    {month}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="w-24 px-2 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {[2023, 2024, 2025, 2026].map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* Date Selectors */}
+          <div className="flex gap-2 mb-3">
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(Number(e.target.value))}
+              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {months.map((month, index) => (
+                <option key={index} value={index + 1}>
+                  {month}
+                </option>
+              ))}
+            </select>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="w-24 px-3 py-2 text-sm border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {[2023, 2024, 2025, 2026].map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {/* Initial Balance Button */}
-              <button
-                onClick={() => setIsBalanceModalOpen(true)}
-                className="flex-shrink-0 px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-sm"
-                title="Atur Saldo Awal"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="hidden sm:inline">Saldo Awal</span>
-                <span className="sm:hidden">Saldo</span>
-              </button>
+          {/* Action Buttons - Grid on Mobile */}
+          <div className="grid grid-cols-3 sm:flex gap-2">
+            {/* Initial Balance Button */}
+            <button
+              onClick={() => setIsBalanceModalOpen(true)}
+              className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm"
+              title="Atur Saldo Awal"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-xs sm:text-sm">Saldo</span>
+            </button>
 
-              {/* Budget Button */}
-              <button
-                onClick={() => setIsBudgetModalOpen(true)}
-                className="flex-shrink-0 px-3 sm:px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-sm"
-                title="Atur Budget"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                <span>Budget</span>
-              </button>
+            {/* Budget Button */}
+            <button
+              onClick={() => setIsBudgetModalOpen(true)}
+              className="px-2 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm"
+              title="Atur Budget"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              <span className="text-xs sm:text-sm">Budget</span>
+            </button>
 
-              {/* Export Buttons */}
-              <button
-                onClick={handleExportCSV}
-                className="flex-shrink-0 px-3 sm:px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-sm"
-                title="Export ke CSV"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span>CSV</span>
-              </button>
+            {/* Export CSV */}
+            <button
+              onClick={handleExportCSV}
+              className="px-2 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm"
+              title="Export ke CSV"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-xs sm:text-sm">CSV</span>
+            </button>
 
-              <button
-                onClick={handlePrintPDF}
-                className="flex-shrink-0 px-3 sm:px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-1 sm:gap-2 text-sm"
-                title="Print PDF"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                <span>PDF</span>
-              </button>
+            {/* Export PDF */}
+            <button
+              onClick={handlePrintPDF}
+              className="px-2 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm"
+              title="Print PDF"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              <span className="text-xs sm:text-sm">PDF</span>
+            </button>
 
+            {/* Add Income - Spanning 2 columns on mobile */}
+            <div className="col-span-2 sm:col-span-1">
               <AddIncomeForm
                 onSuccess={() => {
                   success('Pemasukan berhasil ditambahkan')
@@ -477,8 +478,8 @@ export default function Home() {
         )}
 
         {/* Income History */}
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-8">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Riwayat Pemasukan</h2>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-4">Riwayat Pemasukan</h2>
 
           {loading ? (
             <div className="text-center py-8 text-gray-500 text-sm">Loading...</div>
@@ -487,45 +488,47 @@ export default function Home() {
               Belum ada pemasukan bulan ini
             </div>
           ) : (
-            <div className="space-y-2 sm:space-y-3">
+            <div className="space-y-3">
               {incomes.map((income) => (
                 <div
                   key={income.id}
-                  className="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-3"
                 >
-                  <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full bg-green-100 flex items-center justify-center text-xl sm:text-2xl">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-12 h-12 flex-shrink-0 rounded-full bg-green-100 flex items-center justify-center text-2xl">
                       💰
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">{income.title}</h3>
-                      <p className="text-xs sm:text-sm text-gray-500">
+                      <h3 className="font-semibold text-gray-800 text-base mb-1 truncate">{income.title}</h3>
+                      <p className="text-sm text-gray-500">
                         {formatDate(income.date)}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-4 ml-2">
-                    <span className="text-sm sm:text-lg font-bold text-green-600 whitespace-nowrap">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <span className="text-base sm:text-lg font-bold text-green-600 whitespace-nowrap">
                       +{formatCurrency(income.amount)}
                     </span>
-                    <button
-                      onClick={() => handleEditIncome(income)}
-                      className="text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0"
-                      title="Edit"
-                    >
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleDeleteIncome(income.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors flex-shrink-0"
-                      title="Hapus"
-                    >
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handleEditIncome(income)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors flex-shrink-0"
+                        title="Edit"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteIncome(income.id)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        title="Hapus"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -535,7 +538,7 @@ export default function Home() {
 
         {/* Expenses List */}
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Riwayat Pengeluaran</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-4">Riwayat Pengeluaran</h2>
 
           {loading ? (
             <div className="text-center py-8 text-gray-500 text-sm">Loading...</div>
@@ -544,51 +547,53 @@ export default function Home() {
               Belum ada pengeluaran bulan ini
             </div>
           ) : (
-            <div className="space-y-2 sm:space-y-3">
+            <div className="space-y-3">
               {expenses.map((expense) => (
                 <div
                   key={expense.id}
-                  className="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors gap-3"
                 >
-                  <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div
-                      className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 rounded-full flex items-center justify-center text-xl sm:text-2xl"
+                      className="w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center text-2xl"
                       style={{ backgroundColor: expense.category.color + '20' }}
                     >
                       {expense.category.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-800 text-sm sm:text-base truncate">{expense.title}</h3>
-                      <p className="text-xs sm:text-sm text-gray-500">
+                      <h3 className="font-semibold text-gray-800 text-base mb-1 truncate">{expense.title}</h3>
+                      <p className="text-sm text-gray-500">
                         {expense.category.name} • {formatDate(expense.date)}
                       </p>
                       {expense.description && (
-                        <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{expense.description}</p>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{expense.description}</p>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 sm:gap-4 ml-2">
-                    <span className="text-sm sm:text-lg font-bold text-red-600 whitespace-nowrap">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <span className="text-base sm:text-lg font-bold text-red-600 whitespace-nowrap">
                       -{formatCurrency(expense.amount)}
                     </span>
-                    <button
-                      onClick={() => handleEdit(expense)}
-                      className="text-gray-400 hover:text-blue-600 transition-colors flex-shrink-0"
-                      title="Edit"
-                    >
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(expense.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors flex-shrink-0"
-                      title="Hapus"
-                    >
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => handleEdit(expense)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors flex-shrink-0"
+                        title="Edit"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(expense.id)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        title="Hapus"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
