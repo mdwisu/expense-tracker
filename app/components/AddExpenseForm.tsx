@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import AccountSelector from './AccountSelector'
 
 interface Category {
   id: string
@@ -9,17 +10,27 @@ interface Category {
   color: string
 }
 
+interface Account {
+  id: string
+  name: string
+  icon: string
+  color: string
+  type: string
+}
+
 interface Expense {
   id: string
   title: string
   amount: number
   description?: string
   categoryId: string
+  accountId: string
   date: string
 }
 
 interface AddExpenseFormProps {
   categories: Category[]
+  accounts: Account[]
   onSuccess: () => void
   expense?: Expense | null
   isOpen?: boolean
@@ -28,6 +39,7 @@ interface AddExpenseFormProps {
 
 export default function AddExpenseForm({
   categories,
+  accounts,
   onSuccess,
   expense = null,
   isOpen: externalIsOpen,
@@ -40,6 +52,7 @@ export default function AddExpenseForm({
     amount: '',
     description: '',
     categoryId: '',
+    accountId: '',
     date: new Date().toISOString().split('T')[0],
   })
 
@@ -53,6 +66,7 @@ export default function AddExpenseForm({
         amount: expense.amount.toString(),
         description: expense.description || '',
         categoryId: expense.categoryId,
+        accountId: expense.accountId,
         date: new Date(expense.date).toISOString().split('T')[0],
       })
     } else {
@@ -61,6 +75,7 @@ export default function AddExpenseForm({
         amount: '',
         description: '',
         categoryId: '',
+        accountId: '',
         date: new Date().toISOString().split('T')[0],
       })
     }
@@ -99,6 +114,7 @@ export default function AddExpenseForm({
           amount: '',
           description: '',
           categoryId: '',
+          accountId: '',
           date: new Date().toISOString().split('T')[0],
         })
         handleClose()
@@ -195,6 +211,25 @@ export default function AddExpenseForm({
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.icon} {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Akun
+                </label>
+                <select
+                  required
+                  value={formData.accountId}
+                  onChange={(e) => setFormData({ ...formData, accountId: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
+                >
+                  <option value="">Pilih akun</option>
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.icon} {account.name}
                     </option>
                   ))}
                 </select>

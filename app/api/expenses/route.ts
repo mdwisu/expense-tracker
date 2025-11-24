@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       include: {
         category: true,
+        account: true,
       },
       orderBy: {
         date: 'desc',
@@ -41,11 +42,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { title, amount, description, categoryId, date } = body
+    const { title, amount, description, categoryId, accountId, date } = body
 
-    if (!title || !amount || !categoryId) {
+    if (!title || !amount || !categoryId || !accountId) {
       return NextResponse.json(
-        { error: 'Title, amount, and category are required' },
+        { error: 'Title, amount, category, and account are required' },
         { status: 400 }
       )
     }
@@ -56,10 +57,12 @@ export async function POST(request: NextRequest) {
         amount: parseFloat(amount),
         description,
         categoryId,
+        accountId,
         date: date ? new Date(date) : new Date(),
       },
       include: {
         category: true,
+        account: true,
       },
     })
 
@@ -73,15 +76,15 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { id, title, amount, description, categoryId, date } = body
+    const { id, title, amount, description, categoryId, accountId, date } = body
 
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 })
     }
 
-    if (!title || !amount || !categoryId) {
+    if (!title || !amount || !categoryId || !accountId) {
       return NextResponse.json(
-        { error: 'Title, amount, and category are required' },
+        { error: 'Title, amount, category, and account are required' },
         { status: 400 }
       )
     }
@@ -93,10 +96,12 @@ export async function PUT(request: NextRequest) {
         amount: parseFloat(amount),
         description,
         categoryId,
+        accountId,
         date: date ? new Date(date) : new Date(),
       },
       include: {
         category: true,
+        account: true,
       },
     })
 

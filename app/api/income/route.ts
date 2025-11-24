@@ -23,6 +23,9 @@ export async function GET(request: NextRequest) {
 
     const income = await prisma.income.findMany({
       where: whereClause,
+      include: {
+        account: true,
+      },
       orderBy: {
         date: 'desc',
       },
@@ -38,11 +41,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { title, amount, date } = body
+    const { title, amount, accountId, date } = body
 
-    if (!title || !amount) {
+    if (!title || !amount || !accountId) {
       return NextResponse.json(
-        { error: 'Title and amount are required' },
+        { error: 'Title, amount, and account are required' },
         { status: 400 }
       )
     }
@@ -51,7 +54,11 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         amount: parseFloat(amount),
+        accountId,
         date: date ? new Date(date) : new Date(),
+      },
+      include: {
+        account: true,
       },
     })
 
@@ -65,15 +72,15 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { id, title, amount, date } = body
+    const { id, title, amount, accountId, date } = body
 
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 })
     }
 
-    if (!title || !amount) {
+    if (!title || !amount || !accountId) {
       return NextResponse.json(
-        { error: 'Title and amount are required' },
+        { error: 'Title, amount, and account are required' },
         { status: 400 }
       )
     }
@@ -83,7 +90,11 @@ export async function PUT(request: NextRequest) {
       data: {
         title,
         amount: parseFloat(amount),
+        accountId,
         date: date ? new Date(date) : new Date(),
+      },
+      include: {
+        account: true,
       },
     })
 

@@ -67,41 +67,65 @@ export async function GET(request: NextRequest) {
     const totalExpenses = expenseData._sum.amount || 0
     const monthlyBalance = totalIncome - totalExpenses
 
-    // Calculate cumulative balance
-    // Get initial balance
-    const initialBalance = await prisma.initialBalance.findFirst({
-      orderBy: { createdAt: 'desc' },
+    // Get all accounts
+    const accounts = await prisma.account.findMany({
+      orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
     })
 
-    // Get all income before this month
-    const allPreviousIncome = await prisma.income.aggregate({
-      where: {
-        date: {
-          lt: startDate,
-        },
-      },
-      _sum: {
-        amount: true,
-      },
-    })
+    // Calculate balance per account
+    const accountBalances = await Promise.all(
+      accounts.map(async (account) => {
+        // Income for this account (all time)
+        const accountIncome = await prisma.income.aggregate({
+          where: { accountId: account.id },
+          _sum: { amount: true },
+        })
 
-    // Get all expenses before this month
-    const allPreviousExpenses = await prisma.expense.aggregate({
-      where: {
-        date: {
-          lt: startDate,
-        },
-      },
-      _sum: {
-        amount: true,
-      },
-    })
+        // Expenses for this account (all time)
+        const accountExpenses = await prisma.expense.aggregate({
+          where: { accountId: account.id },
+          _sum: { amount: true },
+        })
 
-    const previousBalance = (initialBalance?.amount || 0) +
-                           (allPreviousIncome._sum.amount || 0) -
-                           (allPreviousExpenses._sum.amount || 0)
+        // Transfers FROM this account (all time)
+        const transfersOut = await prisma.transfer.aggregate({
+          where: { fromAccountId: account.id },
+          _sum: { amount: true },
+        })
 
-    const cumulativeBalance = previousBalance + monthlyBalance
+        // Transfers TO this account (all time)
+        const transfersIn = await prisma.transfer.aggregate({
+          where: { toAccountId: account.id },
+          _sum: { amount: true },
+        })
+
+        // Adjustments for this account (all time)
+        const adjustments = await prisma.adjustment.aggregate({
+          where: { accountId: account.id },
+          _sum: { difference: true },
+        })
+
+        const balance =
+          account.initialBalance +
+          (accountIncome._sum.amount || 0) -
+          (accountExpenses._sum.amount || 0) +
+          (transfersIn._sum.amount || 0) -
+          (transfersOut._sum.amount || 0) +
+          (adjustments._sum.difference || 0)
+
+        return {
+          accountId: account.id,
+          accountName: account.name,
+          accountIcon: account.icon,
+          accountColor: account.color,
+          accountType: account.type,
+          balance,
+        }
+      })
+    )
+
+    // Calculate total balance across all accounts
+    const totalBalance = accountBalances.reduce((sum, acc) => sum + acc.balance, 0)
 
     // Calculate YTD (Year to Date)
     const ytdStartDate = new Date(currentYear, 0, 1)
@@ -136,10 +160,10 @@ export async function GET(request: NextRequest) {
       totalIncome,
       totalExpenses,
       monthlyBalance,
-      previousBalance,
-      cumulativeBalance,
+      totalBalance,
       ytdBalance,
       categoryStats: categoryStats.sort((a, b) => b.total - a.total),
+      accountBalances,
     })
   } catch (error) {
     console.error('Error fetching stats:', error)

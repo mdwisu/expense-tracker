@@ -1,11 +1,16 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import AddExpenseForm from './components/AddExpenseForm'
 import AddIncomeForm from './components/AddIncomeForm'
+import TransferForm from './components/TransferForm'
+import ReconcileModal from './components/ReconcileModal'
+import AccountBalanceCards from './components/AccountBalanceCards'
 import ExpenseChart from './components/ExpenseChart'
 import BudgetModal from './components/BudgetModal'
 import InitialBalanceModal from './components/InitialBalanceModal'
+import CategoryManagementModal from './components/CategoryManagementModal'
 import PWAInstallPrompt from './components/PWAInstallPrompt'
 import Toast from './components/Toast'
 import { exportToCSV, printToPDF } from '@/lib/export'
@@ -18,6 +23,14 @@ interface Category {
   color: string
 }
 
+interface Account {
+  id: string
+  name: string
+  icon: string
+  color: string
+  type: string
+}
+
 interface Expense {
   id: string
   title: string
@@ -25,6 +38,7 @@ interface Expense {
   description: string | null
   date: string
   category: Category
+  account: Account
 }
 
 interface Income {
@@ -32,6 +46,7 @@ interface Income {
   title: string
   amount: number
   date: string
+  account: Account
 }
 
 interface Budget {
@@ -45,8 +60,7 @@ interface Stats {
   totalIncome: number
   totalExpenses: number
   monthlyBalance: number
-  previousBalance: number
-  cumulativeBalance: number
+  totalBalance: number
   ytdBalance: number
   categoryStats: {
     category: string
@@ -55,12 +69,22 @@ interface Stats {
     total: number
     count: number
   }[]
+  accountBalances: {
+    accountId: string
+    accountName: string
+    accountIcon: string
+    accountColor: string
+    accountType: string
+    balance: number
+  }[]
 }
 
 export default function Home() {
+  const router = useRouter()
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [incomes, setIncomes] = useState<Income[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -72,24 +96,29 @@ export default function Home() {
   const [isEditIncomeOpen, setIsEditIncomeOpen] = useState(false)
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false)
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false)
+  const [isReconcileModalOpen, setIsReconcileModalOpen] = useState(false)
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false)
+  const [selectedAccountForReconcile, setSelectedAccountForReconcile] = useState('')
 
   const { toasts, removeToast, success, error, info } = useToast()
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [expensesRes, incomesRes, categoriesRes, statsRes, budgetsRes] = await Promise.all([
+      const [expensesRes, incomesRes, categoriesRes, accountsRes, statsRes, budgetsRes] = await Promise.all([
         fetch(`/api/expenses?month=${selectedMonth}&year=${selectedYear}`),
         fetch(`/api/income?month=${selectedMonth}&year=${selectedYear}`),
         fetch('/api/categories'),
+        fetch('/api/accounts'),
         fetch(`/api/stats?month=${selectedMonth}&year=${selectedYear}`),
         fetch(`/api/budgets?month=${selectedMonth}&year=${selectedYear}`),
       ])
 
-      const [expensesData, incomesData, categoriesData, statsData, budgetsData] = await Promise.all([
+      const [expensesData, incomesData, categoriesData, accountsData, statsData, budgetsData] = await Promise.all([
         expensesRes.json(),
         incomesRes.json(),
         categoriesRes.json(),
+        accountsRes.json(),
         statsRes.json(),
         budgetsRes.json(),
       ])
@@ -97,6 +126,7 @@ export default function Home() {
       setExpenses(expensesData)
       setIncomes(incomesData)
       setCategories(categoriesData)
+      setAccounts(accountsData)
       setStats(statsData)
       setBudgets(budgetsData)
     } catch (error) {
@@ -207,6 +237,18 @@ export default function Home() {
     }
   }
 
+  const handleReconcileClick = (accountId: string) => {
+    setSelectedAccountForReconcile(accountId)
+    setIsReconcileModalOpen(true)
+  }
+
+  const handleReconcileSuccess = () => {
+    success('Saldo berhasil disesuaikan')
+    fetchData()
+    setIsReconcileModalOpen(false)
+    setSelectedAccountForReconcile('')
+  }
+
   const months = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -250,7 +292,19 @@ export default function Home() {
           </div>
 
           {/* Action Buttons - Grid on Mobile */}
-          <div className="grid grid-cols-3 sm:flex gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:flex gap-2 flex-wrap">
+            {/* Kelola Akun Button */}
+            <button
+              onClick={() => router.push('/accounts')}
+              className="px-2 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm"
+              title="Kelola Akun"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <span className="text-xs sm:text-sm whitespace-nowrap">Kelola Akun</span>
+            </button>
+
             {/* Initial Balance Button */}
             <button
               onClick={() => setIsBalanceModalOpen(true)}
@@ -273,6 +327,18 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
               </svg>
               <span className="text-xs sm:text-sm">Budget</span>
+            </button>
+
+            {/* Kelola Kategori Button */}
+            <button
+              onClick={() => setIsCategoryModalOpen(true)}
+              className="px-2 py-2 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition-colors flex flex-col sm:flex-row items-center justify-center gap-1 text-xs sm:text-sm"
+              title="Kelola Kategori"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <span className="text-xs sm:text-sm whitespace-nowrap">Kategori</span>
             </button>
 
             {/* Export CSV */}
@@ -301,8 +367,18 @@ export default function Home() {
 
             {/* Add Income */}
             <AddIncomeForm
+              accounts={accounts}
               onSuccess={() => {
                 success('Pemasukan berhasil ditambahkan')
+                fetchData()
+              }}
+            />
+
+            {/* Transfer */}
+            <TransferForm
+              accounts={accounts}
+              onSuccess={() => {
+                success('Transfer berhasil dilakukan')
                 fetchData()
               }}
             />
@@ -359,15 +435,15 @@ export default function Home() {
               <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg p-4 sm:p-6 md:transform md:hover:scale-105 transition-transform">
                 <div className="flex items-center justify-between">
                   <div className="w-full">
-                    <p className="text-xs sm:text-sm text-white/90 mb-1 font-medium">💎 Saldo Kumulatif</p>
+                    <p className="text-xs sm:text-sm text-white/90 mb-1 font-medium">💎 Total Saldo Semua Akun</p>
                     <p className={`text-xl sm:text-3xl font-bold text-white`}>
-                      {formatCurrency(stats.cumulativeBalance)}
+                      {formatCurrency(stats.totalBalance)}
                     </p>
                     <p className="text-xs text-white/80 mt-1 sm:mt-2">
-                      Saldo awal: {formatCurrency(stats.previousBalance)}
+                      Dari semua akun yang terdaftar
                     </p>
                   </div>
-                  <div className="text-2xl sm:text-4xl">{stats.cumulativeBalance >= 0 ? '✅' : '⚠️'}</div>
+                  <div className="text-2xl sm:text-4xl">{stats.totalBalance >= 0 ? '✅' : '⚠️'}</div>
                 </div>
               </div>
 
@@ -386,6 +462,22 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            {/* Account Balance Cards */}
+            {stats.accountBalances && stats.accountBalances.length > 0 ? (
+              <AccountBalanceCards
+                accountBalances={stats.accountBalances}
+                onReconcileClick={handleReconcileClick}
+              />
+            ) : (
+              <div className="mb-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                  <p className="text-sm text-blue-800">
+                    💡 <strong>Saldo per akun akan muncul di sini.</strong> Klik <strong>"Kelola Akun"</strong> di menu atas untuk menambah atau mengelola akun Anda.
+                  </p>
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -499,9 +591,17 @@ export default function Home() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-800 text-base sm:text-lg mb-1 truncate">{income.title}</h3>
-                      <p className="text-sm text-gray-500">
-                        {formatDate(income.date)}
-                      </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full text-white font-medium"
+                          style={{ backgroundColor: income.account.color }}
+                        >
+                          {income.account.icon} {income.account.name}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {formatDate(income.date)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -564,9 +664,18 @@ export default function Home() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-800 text-base sm:text-lg mb-1 truncate">{expense.title}</h3>
-                      <p className="text-sm text-gray-500">
-                        {expense.category.name} • {formatDate(expense.date)}
-                      </p>
+                      <div className="flex items-center gap-2 flex-wrap text-sm text-gray-500">
+                        <span>{expense.category.name}</span>
+                        <span>•</span>
+                        <span
+                          className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full text-white font-medium"
+                          style={{ backgroundColor: expense.account.color }}
+                        >
+                          {expense.account.icon} {expense.account.name}
+                        </span>
+                        <span>•</span>
+                        <span>{formatDate(expense.date)}</span>
+                      </div>
                       {expense.description && (
                         <p className="text-sm text-gray-600 mt-1 line-clamp-2">{expense.description}</p>
                       )}
@@ -609,6 +718,7 @@ export default function Home() {
       {/* Add Expense Button */}
       <AddExpenseForm
         categories={categories}
+        accounts={accounts}
         onSuccess={() => {
           success('Pengeluaran berhasil ditambahkan')
           fetchData()
@@ -619,6 +729,7 @@ export default function Home() {
       {editingExpense && (
         <AddExpenseForm
           categories={categories}
+          accounts={accounts}
           onSuccess={() => {
             success('Pengeluaran berhasil diupdate')
             fetchData()
@@ -630,6 +741,7 @@ export default function Home() {
             amount: editingExpense.amount,
             description: editingExpense.description || undefined,
             categoryId: editingExpense.category.id,
+            accountId: editingExpense.account.id,
             date: editingExpense.date,
           }}
           isOpen={isEditExpenseOpen}
@@ -640,6 +752,7 @@ export default function Home() {
       {/* Edit Income Modal */}
       {editingIncome && (
         <AddIncomeForm
+          accounts={accounts}
           onSuccess={() => {
             success('Pemasukan berhasil diupdate')
             fetchData()
@@ -649,6 +762,7 @@ export default function Home() {
             id: editingIncome.id,
             title: editingIncome.title,
             amount: editingIncome.amount,
+            accountId: editingIncome.account.id,
             date: editingIncome.date,
           }}
           isOpen={isEditIncomeOpen}
@@ -679,6 +793,30 @@ export default function Home() {
           fetchData()
         }}
       />
+
+      {/* Category Management Modal */}
+      <CategoryManagementModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        onSuccess={() => {
+          success('Kategori berhasil disimpan')
+          fetchData()
+        }}
+      />
+
+      {/* Reconcile Modal */}
+      {stats && (
+        <ReconcileModal
+          accounts={accounts}
+          accountBalances={stats.accountBalances || []}
+          isOpen={isReconcileModalOpen}
+          onClose={() => {
+            setIsReconcileModalOpen(false)
+            setSelectedAccountForReconcile('')
+          }}
+          onSuccess={handleReconcileSuccess}
+        />
+      )}
 
       {/* Toast Notifications */}
       {toasts.map(toast => (

@@ -10,6 +10,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id             String       @id @default(cuid())
+  name           String
+  type           String       // bank, cash, ewallet
+  icon           String
+  color          String
+  initialBalance Float        @default(0)
+  isDefault      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  expenses       Expense[]
+  incomes        Income[]
+  transfersFrom  Transfer[]   @relation("FromAccount")
+  transfersTo    Transfer[]   @relation("ToAccount")
+  adjustments    Adjustment[]
+}
+
 model Category {
   id        String    @id @default(cuid())
   name      String
@@ -28,6 +45,8 @@ model Expense {
   date        DateTime @default(now())
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
+  accountId   String
+  account     Account  @relation(fields: [accountId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -37,8 +56,36 @@ model Income {
   title     String
   amount    Float
   date      DateTime @default(now())
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Transfer {
+  id            String   @id @default(cuid())
+  amount        Float
+  date          DateTime @default(now())
+  note          String?
+  fromAccountId String
+  fromAccount   Account  @relation("FromAccount", fields: [fromAccountId], references: [id])
+  toAccountId   String
+  toAccount     Account  @relation("ToAccount", fields: [toAccountId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Adjustment {
+  id              String   @id @default(cuid())
+  accountId       String
+  account         Account  @relation(fields: [accountId], references: [id])
+  recordedBalance Float    // Balance menurut sistem
+  actualBalance   Float    // Balance sebenarnya dari user input
+  difference      Float    // actualBalance - recordedBalance
+  date            DateTime @default(now())
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Budget {

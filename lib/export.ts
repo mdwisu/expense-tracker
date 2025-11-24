@@ -75,8 +75,7 @@ export function printToPDF(
     totalIncome: number
     totalExpenses: number
     monthlyBalance: number
-    previousBalance: number
-    cumulativeBalance: number
+    totalBalance: number
     ytdBalance: number
     categoryStats: {
       category: string
@@ -245,13 +244,9 @@ export function printToPDF(
         </div>
 
         <div class="summary" style="margin-bottom: 30px;">
-          <div class="summary-card">
-            <h3>Saldo Awal Bulan</h3>
-            <p style="color: #6b7280;">${formatCurrency(stats.previousBalance)}</p>
-          </div>
           <div class="summary-card" style="border-width: 3px; border-color: #3b82f6; background-color: #eff6ff;">
-            <h3>💎 Saldo Kumulatif</h3>
-            <p style="color: #1e40af; font-size: 28px;">${formatCurrency(stats.cumulativeBalance)}</p>
+            <h3>💎 Total Saldo Semua Akun</h3>
+            <p style="color: #1e40af; font-size: 28px;">${formatCurrency(stats.totalBalance)}</p>
           </div>
           <div class="summary-card">
             <h3>Saldo YTD ${year}</h3>
