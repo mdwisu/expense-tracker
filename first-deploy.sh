@@ -34,7 +34,7 @@ ssh $VPS_HOST "source ~/.nvm/nvm.sh && cd $APP_DIR && npm install"
 # 4. Setup environment
 echo "🔧 Setting up environment..."
 ssh $VPS_HOST "cd $APP_DIR && cat > .env << 'EOF'
-DATABASE_URL=\"file:./dev.db\"
+DATABASE_URL=\"file:./production.db\"
 NODE_ENV=production
 EOF"
 
@@ -61,7 +61,7 @@ fi
 
 # 9. Setup Nginx
 echo "🌐 Configuring Nginx..."
-ssh $VPS_HOST "sudo tee /etc/nginx/sites-available/$APP_NAME > /dev/null << 'EOF'
+ssh $VPS_HOST "sudo tee /etc/nginx/sites-available/$APP_NAME > /dev/null << EOF
 server {
     listen 80;
     server_name $DOMAIN;
@@ -69,13 +69,13 @@ server {
     location / {
         proxy_pass http://localhost:3001;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Upgrade \\\$http_upgrade;
         proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header Host \\\$host;
+        proxy_cache_bypass \\\$http_upgrade;
+        proxy_set_header X-Real-IP \\\$remote_addr;
+        proxy_set_header X-Forwarded-For \\\$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \\\$scheme;
     }
 }
 EOF"
