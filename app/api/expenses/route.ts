@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
         account: true,
       },
       orderBy: {
-        date: 'desc',
+        createdAt: 'desc',
       },
     })
 
