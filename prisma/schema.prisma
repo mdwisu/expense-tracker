@@ -11,20 +11,21 @@ datasource db {
 }
 
 model Account {
-  id             String       @id @default(cuid())
-  name           String
-  type           String       // bank, cash, ewallet
-  icon           String
-  color          String
-  initialBalance Float        @default(0)
-  isDefault      Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  expenses       Expense[]
-  incomes        Income[]
-  transfersFrom  Transfer[]   @relation("FromAccount")
-  transfersTo    Transfer[]   @relation("ToAccount")
-  adjustments    Adjustment[]
+  id                 String              @id @default(cuid())
+  name               String
+  type               String              // bank, cash, ewallet
+  icon               String
+  color              String
+  initialBalance     Float               @default(0)
+  isDefault          Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  expenses           Expense[]
+  incomes            Income[]
+  transfersFrom      Transfer[]          @relation("FromAccount")
+  transfersTo        Transfer[]          @relation("ToAccount")
+  adjustments        Adjustment[]
+  receivablePayments ReceivablePayment[]
 }
 
 model Category {
@@ -108,4 +109,31 @@ model InitialBalance {
   note      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Receivable {
+  id          String              @id @default(cuid())
+  debtorName  String              // Nama orang yang berutang
+  totalAmount Float               // Total jumlah utang
+  remaining   Float               // Sisa yang belum dibayar
+  description String?             // Catatan/deskripsi
+  date        DateTime            @default(now()) // Tanggal piutang dibuat
+  dueDate     DateTime?           // Tanggal jatuh tempo (optional)
+  status      String              @default("active") // active, paid, partially_paid
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  payments    ReceivablePayment[] // Relasi ke pembayaran
+}
+
+model ReceivablePayment {
+  id           String     @id @default(cuid())
+  receivableId String
+  receivable   Receivable @relation(fields: [receivableId], references: [id], onDelete: Cascade)
+  amount       Float      // Jumlah pembayaran
+  date         DateTime   @default(now())
+  accountId    String     // Akun tujuan pembayaran
+  account      Account    @relation(fields: [accountId], references: [id])
+  note         String?    // Catatan pembayaran
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 }
