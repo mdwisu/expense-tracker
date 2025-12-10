@@ -26,9 +26,37 @@ ssh $VPS_HOST "mkdir -p $BACKUP_DIR && (cp $APP_DIR/prisma/production.db $BACKUP
 echo "🗄️  Running database migrations..."
 ssh $VPS_HOST "source ~/.nvm/nvm.sh && cd $APP_DIR && npx prisma generate && npx prisma migrate deploy"
 
-# 5. Build aplikasi
-echo "🔨 Building application..."
-ssh $VPS_HOST "source ~/.nvm/nvm.sh && cd $APP_DIR && npm run build"
+# 5. Build aplikasi (in screen session to avoid timeout)
+echo "🔨 Building application in screen session..."
+SCREEN_NAME="deploy_$TIMESTAMP"
+ssh $VPS_HOST "screen -dmS $SCREEN_NAME bash -c 'source ~/.nvm/nvm.sh && cd $APP_DIR && npm run build && echo BUILD_SUCCESS > /tmp/build_status_$TIMESTAMP || echo BUILD_FAILED > /tmp/build_status_$TIMESTAMP'"
+
+# Wait for build to complete
+echo "⏳ Waiting for build to complete..."
+BUILD_TIMEOUT=180
+BUILD_START=$(date +%s)
+while true; do
+  BUILD_STATUS=$(ssh $VPS_HOST "cat /tmp/build_status_$TIMESTAMP 2>/dev/null || echo BUILDING")
+
+  if [ "$BUILD_STATUS" = "BUILD_SUCCESS" ]; then
+    echo "✅ Build completed successfully!"
+    ssh $VPS_HOST "rm -f /tmp/build_status_$TIMESTAMP"
+    break
+  elif [ "$BUILD_STATUS" = "BUILD_FAILED" ]; then
+    echo "❌ Build failed!"
+    ssh $VPS_HOST "rm -f /tmp/build_status_$TIMESTAMP"
+    exit 1
+  fi
+
+  BUILD_ELAPSED=$(($(date +%s) - BUILD_START))
+  if [ $BUILD_ELAPSED -gt $BUILD_TIMEOUT ]; then
+    echo "⚠️  Build timeout! Check screen session: screen -r $SCREEN_NAME"
+    exit 1
+  fi
+
+  echo "   Building... (${BUILD_ELAPSED}s elapsed)"
+  sleep 5
+done
 
 # 6. Restart PM2
 echo "🔄 Restarting application..."
