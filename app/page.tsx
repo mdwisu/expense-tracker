@@ -249,6 +249,26 @@ export default function Home() {
     setSelectedAccountForReconcile('')
   }
 
+  const handleLogout = async () => {
+    if (!confirm('Yakin ingin logout?')) return
+
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        router.push('/login')
+        router.refresh()
+      } else {
+        error('Gagal logout')
+      }
+    } catch (err) {
+      console.error('Logout error:', err)
+      error('Terjadi kesalahan saat logout')
+    }
+  }
+
   const months = [
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -258,9 +278,21 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-4 sm:py-8 px-3 sm:px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-4 sm:mb-8">
-          <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-1 sm:mb-2">Expense Tracker</h1>
-          <p className="text-sm sm:text-base text-gray-600">Kelola keuangan Anda dengan mudah</p>
+        <div className="mb-4 sm:mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-800 mb-1 sm:mb-2">Expense Tracker</h1>
+            <p className="text-sm sm:text-base text-gray-600">Kelola keuangan Anda dengan mudah</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-3 sm:px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center gap-2 text-sm"
+            title="Logout"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span className="hidden sm:inline">Logout</span>
+          </button>
         </div>
 
         {/* Month Selector */}
